@@ -13,7 +13,7 @@ class PcapFileParser(FileParser):
         self.filePtr = self.file.open('rb')
         # self.endian = self._getEndian()  # 获得字节序，供后续解析使用
 
-    def parse(self) -> list[str]:
+    def parse(self):
         packetDataList = []
 
         # # 跳过文件头
@@ -30,7 +30,7 @@ class PcapFileParser(FileParser):
 
             captureLength = int.from_bytes(packetHeaderBytes[8:12], self.endian, signed=False)
             packetDataBytes = self.filePtr.read(captureLength)
-            packetDataList.append(packetDataBytes.hex())
+            packetDataList.append(packetDataBytes)
 
         return packetDataList
 

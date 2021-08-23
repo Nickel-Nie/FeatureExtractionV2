@@ -10,7 +10,7 @@ class PcapngFileParser(FileParser):
         super().__init__(file)
         self.filePtr = self.file.open('rb')
 
-    def parse(self) -> list[str]:
+    def parse(self):
         packetDataList = []
 
         # 以节头块开头，获取字节序
@@ -44,7 +44,7 @@ class PcapngFileParser(FileParser):
                 print("未知Block类型")
 
             if len(packetDataBytes) != 0:
-                packetDataList.append(packetDataBytes.hex())
+                packetDataList.append(packetDataBytes)
 
         return packetDataList
 
