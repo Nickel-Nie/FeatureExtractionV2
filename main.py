@@ -2,6 +2,7 @@ import getopt
 import sys
 
 from DirectoryHandler import DirectoryHandler
+from FeatureHandler import FeatureHandler
 from InfoHandler import InfoHandler
 from PacketFilter import PacketFilter
 from PacketLengthRange import PacketLengthRange
@@ -43,11 +44,12 @@ def main(args):
 
 def test1():
     filepath = r"C:\Users\a9241\Desktop\Learning materials\研究生\抓包任务20210611\FacebookCapture\App_Facebook_Post_01"
-    filename = "App_Facebook_Post_01_PH3.pcapng"
+    # filename = "App_Facebook_Post_01_PH3.pcapng"
 
     range1 = PacketLengthRange("[200:300]")
     firstmPackets = 10
     firstnBytes = 32
+    featureNumbers = 2
 
     # 第一步，进行目录处理：1.获取目录内所有捕获文件；2.创建相应的文件夹
     directoryHandler = DirectoryHandler(filepath, range1, firstmPackets, firstnBytes)
@@ -61,6 +63,12 @@ def test1():
         # 第三步，进行报文信息处理，将过滤后得到的数据进行进一步处理
         InfoHandler.handle(dumpFile, directoryHandler.jsonDirectory, servicePayloadInfoList)
 
+    # 第四步，对保存的文件进行后续处理，从而得到唯一的特征值
+    featureHandler = FeatureHandler(directoryHandler.jsonDirectory,
+                                    directoryHandler.md5Directory,
+                                    directoryHandler.featureDirectory,
+                                    featureNumbers)
+    featureHandler.handle()
 
 def test2():
     filepath = r"C:\Users\a9241\Desktop\Learning materials\研究生\抓包任务20210611\FacebookCapture\App_Facebook_Post_01"

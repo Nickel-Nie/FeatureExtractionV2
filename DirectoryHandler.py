@@ -40,3 +40,8 @@ class DirectoryHandler:
             else:
                 directoryPath.mkdir()
 
+    @classmethod
+    def getFilenamesByType(cls, path, type)->list:
+        if isinstance(path, str):
+            path = Path(path)
+        return [file.name for file in path.glob(f'*.{type}')]
