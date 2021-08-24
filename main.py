@@ -2,6 +2,7 @@ import getopt
 import sys
 
 from DirectoryHandler import DirectoryHandler
+from InfoHandler import InfoHandler
 from PacketFilter import PacketFilter
 from PacketLengthRange import PacketLengthRange
 from ParserContext import ParserContext
@@ -47,19 +48,25 @@ def test1():
     range1 = PacketLengthRange("[200:300]")
     firstmPackets = 10
     firstnBytes = 32
-    packetFilter = PacketFilter(range1, firstmPackets, firstnBytes)
 
-    context = ParserContext(filename, filepath, packetFilter)
-    servicePayloadDict = context.parse()
+    # 第一步，进行目录处理：1.获取目录内所有捕获文件；2.创建相应的文件夹
+    directoryHandler = DirectoryHandler(filepath, range1, firstmPackets, firstnBytes)
+    dumpFiles = directoryHandler.getAllDumpFile()  # 获取得到的是全路径名
+    # 第二步，进行文件处理: 1.获取捕获文件内所有报文数据；2.根据长度范围，m,n值进行报文数据过滤;
+    packetFilter = PacketFilter(range1, firstmPackets, firstnBytes)  # 得到过滤器实例
+    for dumpFile in dumpFiles:
+        context = ParserContext(dumpFile, filepath, packetFilter)
+        servicePayloadInfoList = context.parse()
 
-    for k,v in servicePayloadDict.items():
-        print("packet" + str(k) + ": " + v.hex())
+        # 第三步，进行报文信息处理，将过滤后得到的数据进行进一步处理
+        InfoHandler.handle(dumpFile, directoryHandler.jsonDirectory, servicePayloadInfoList)
+
 
 def test2():
     filepath = r"C:\Users\a9241\Desktop\Learning materials\研究生\抓包任务20210611\FacebookCapture\App_Facebook_Post_01"
     range1 = PacketLengthRange("[50:55]")
-    handler = DirectoryHandler(filepath, range1, 32)
-    print(handler.getAllDumpFile())
+    # handler = DirectoryHandler(filepath, range1, 32)
+    # print(handler.getAllDumpFile())
 
 
 if __name__ == '__main__':

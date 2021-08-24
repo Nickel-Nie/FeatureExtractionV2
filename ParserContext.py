@@ -31,5 +31,5 @@ class ParserContext:
 
     def parse(self):
         packetDataList = self.fileParser.parse()  # 获取当前文件所有报文信息
-        packetDataDict = self.packetFilter.filter(packetDataList)  # 根据长度范围以及m取值获得符合条件的报文
-        return packetDataDict
+        servicePayloadInfoList = self.packetFilter.filter(packetDataList)  # 根据长度范围以及m、n的取值获取相应的业务负载数据
+        return servicePayloadInfoList

@@ -9,12 +9,12 @@ class PacketFilter:
         self.firstmPackets = firstmPackets
         self.firstnBytes = firstnBytes
 
-    def filter(self, packetDataList: list[bytes]) -> dict[int, bytes]:
+    def filter(self, packetDataList: list[bytes]) -> list[dict]:
         # 进行数据过滤，第一步获取满足长度范围的报文，第二步获取前N个字节，取完M个
 
         availablePacketsNumber = 0
         # availablePacketsDict = {}
-        servicePayloadDict = {}
+        servicePayloadInfoList = []
 
         for i in range(1, len(packetDataList) + 1):  # 为了获取报文编号
             # for packetData in packetDataList:
@@ -27,15 +27,20 @@ class PacketFilter:
                 continue
 
             servicePayloadBytes = self._extractServicePayload(packetDataList[i-1]) # 获取业务负载字节流
-            if len(servicePayloadBytes) < self.firstnBytes:
+            if servicePayloadBytes is None or len(servicePayloadBytes) < self.firstnBytes:
                 # 业务负载字节流长度不足N，继续处理下一个报文
                 continue
 
             availablePacketsNumber += 1
             # availablePacketsDict[i] = packetDataList[i-1]
-            servicePayloadDict[i] = servicePayloadBytes[0:self.firstnBytes]  # 获取前n字节的业务负载数据
+            # servicePayloadDict[i] = servicePayloadBytes[0:self.firstnBytes]  # 获取前n字节的业务负载数据
+            servicePayloadInfoList.append(dict(packetNo = i,
+                                               packetLength=packetLength,
+                                               servicePayload=servicePayloadBytes[0:self.firstnBytes],
+                                               )
+                                          )
 
-        return servicePayloadDict
+        return servicePayloadInfoList
 
     def _extractServicePayload(self, frameBytes: bytes):
         """

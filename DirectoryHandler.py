@@ -4,27 +4,34 @@ from PacketLengthRange import PacketLengthRange
 
 
 class DirectoryHandler:
-    def __init__(self, directory, packetLengthRange, firstnBytes):
+    def __init__(self, directory, packetLengthRange, firstmPackets, firstnBytes):
         path = Path(directory)
         if not path.is_dir():  # 不是目录，直接失败
             raise Exception("请传入目录，而不是文件")
 
         self.absolutePath = path.resolve()
-        self._makeDirectory(packetLengthRange, firstnBytes)
+        self._makeDirectory(packetLengthRange, firstmPackets, firstnBytes)
 
     def getAllDumpFile(self):
-        pcapngFilenames = [str(pcapngFile) for pcapngFile in self.absolutePath.glob('*.pcapng')]
-        pcapFilenames = [str(pcapFile) for pcapFile in self.absolutePath.glob('*.pcap')]
+        pcapngFilenames = [pcapngFile.name for pcapngFile in self.absolutePath.glob('*.pcapng')]
+        pcapFilenames = [pcapFile.name for pcapFile in self.absolutePath.glob('*.pcap')]
         return pcapngFilenames + pcapFilenames
 
-    def _makeDirectory(self, packetLengthRange:PacketLengthRange, firstnBytes:int):
+    def _makeDirectory(self, packetLengthRange:PacketLengthRange, firstmPacket:int, firstnBytes:int):
+        prefixName = packetLengthRange.rangeString + "-" + str(firstmPacket) + "-" + str(firstnBytes)
         directoryList = []
-        self.jsonDirectory = packetLengthRange.rangeString + "-" + str(firstnBytes) + "-JSON"
-        directoryList.append(self.jsonDirectory)
-        self.md5Directory = packetLengthRange.rangeString + "-" + str(firstnBytes) + "-MD5"
-        directoryList.append(self.md5Directory)
-        self.featureDirectory = packetLengthRange.rangeString + "-" + str(firstnBytes) + "-FEATURE"
-        directoryList.append(self.featureDirectory)
+
+        jsonDirectory = prefixName + "-JSON"
+        self.jsonDirectory = str(self.absolutePath.joinpath(jsonDirectory))
+        directoryList.append(jsonDirectory)
+
+        md5Directory = prefixName + "-MD5"
+        self.md5Directory = str(self.absolutePath.joinpath(md5Directory))
+        directoryList.append(md5Directory)
+
+        featureDirectory = prefixName + "-FEATURE"
+        self.featureDirectory = str(self.absolutePath.joinpath(featureDirectory))
+        directoryList.append(featureDirectory)
 
         for directory in directoryList:
             directoryPath = self.absolutePath.joinpath(directory)
